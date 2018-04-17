@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Csi.Plugins.AzureDisk", "src\Csi.Plugins.AzureDisk\Csi.Plugins.AzureDisk.csproj", "{E1227804-B5DB-4705-AF1D-AB396FAF4A38}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Csi.Plugins.AzureDisk.Tests", "tests\Csi.Plugins.AzureDisk.Tests\Csi.Plugins.AzureDisk.Tests.csproj", "{DE0325EF-53E8-4329-925F-9D5D3D92C3E9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E1227804-B5DB-4705-AF1D-AB396FAF4A38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1227804-B5DB-4705-AF1D-AB396FAF4A38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1227804-B5DB-4705-AF1D-AB396FAF4A38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1227804-B5DB-4705-AF1D-AB396FAF4A38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE0325EF-53E8-4329-925F-9D5D3D92C3E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE0325EF-53E8-4329-925F-9D5D3D92C3E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE0325EF-53E8-4329-925F-9D5D3D92C3E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE0325EF-53E8-4329-925F-9D5D3D92C3E9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {38E83099-8CCE-4229-B40B-0D47C4C1BF0A}
+	EndGlobalSection
+EndGlobal
