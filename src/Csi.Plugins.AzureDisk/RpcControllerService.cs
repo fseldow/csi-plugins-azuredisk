@@ -7,15 +7,33 @@ using Util.Extensions.Logging.Step;
 
 namespace Csi.Plugins.AzureDisk
 {
+    class ContextConfig
+    {
+        public string Subscription { get; set; }
+        public string ResourceGroup { get; set; }
+
+        public static ContextConfig FromEnv()
+        {
+            return new ContextConfig
+            {
+                Subscription = Environment.GetEnvironmentVariable("DEFAULT_SUBSCRIPTION"),
+                ResourceGroup = Environment.GetEnvironmentVariable("DEFAULT_RESOURCEGROUP"),
+            };
+        }
+    }
+
     sealed class RpcControllerService : Controller.ControllerBase
     {
+        private readonly IServiceClientCredentialsProvider provider = new ServiceClientCredentialsProvider();
+        private readonly IManagedDiskProvisionServiceFactory factory;
         private readonly ILogger logger;
+        private ContextConfig contextConfig = ContextConfig.FromEnv();
 
-        public RpcControllerService(ILogger<RpcControllerService> logger)
+
+        public RpcControllerService(IManagedDiskProvisionServiceFactory factory, ILogger<RpcControllerService> logger)
         {
+            this.factory = factory;
             this.logger = logger;
-
-            logger.LogInformation("Rpc controller service loaded");
         }
 
         public override async Task<CreateVolumeResponse> CreateVolume(
@@ -34,11 +52,13 @@ namespace Csi.Plugins.AzureDisk
             {
                 try
                 {
-                    await Task.CompletedTask;
+                    IManagedDiskProvisionService provisionService = factory.Create(provider.Provide(), contextConfig.Subscription);
+                    await provisionService.CreateAsync(contextConfig.Subscription, contextConfig.ResourceGroup,
+                        request.Name, "westus2", 3);
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Exception in CreateVolume");
+                    logger.LogError(ex, "Exception in CreateAsync");
                     throw new RpcException(new Status(StatusCode.Internal, ex.Message));
                 }
 

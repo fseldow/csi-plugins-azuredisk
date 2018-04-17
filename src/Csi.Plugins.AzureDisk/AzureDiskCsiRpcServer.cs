@@ -12,6 +12,7 @@ namespace Csi.Plugins.AzureDisk
         {
             serviceProvider = new ServiceCollection()
                .AddLogging(lb => lb.AddSerillogConsole())
+               .AddSingleton<IManagedDiskProvisionServiceFactory, ManagedDiskProvisionServiceFactory>()
                .BuildServiceProvider();
         }
 
@@ -24,7 +25,7 @@ namespace Csi.Plugins.AzureDisk
         public override Node.NodeBase CreateNodeRpcService()
             => ActivatorUtilities.CreateInstance<RpcNodeService>(serviceProvider, getNodeIdFromEnv());
 
-        private static string getNodeIdFromEnv() => Environment.GetEnvironmentVariable("NODE_ID") 
+        private static string getNodeIdFromEnv() => Environment.GetEnvironmentVariable("NODE_ID")
             ?? Environment.MachineName;
     }
 }

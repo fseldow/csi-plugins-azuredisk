@@ -44,7 +44,7 @@ namespace Csi.Plugins.AzureDisk.Tests
         private RpcControllerService createService()
         {
             var lf = new LoggerFactory();
-            return new RpcControllerService(lf.CreateLogger<RpcControllerService>());
+            return new RpcControllerService(null, lf.CreateLogger<RpcControllerService>());
         }
     }
 }

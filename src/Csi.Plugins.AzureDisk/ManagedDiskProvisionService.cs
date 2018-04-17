@@ -11,7 +11,9 @@ namespace Csi.Plugins.AzureDisk
         private readonly IComputeManagementClient computeManagementClient;
         private readonly ILogger logger;
 
-        public ManagedDiskProvisionService(IComputeManagementClient computeManagementClient, ILogger logger)
+        public ManagedDiskProvisionService(
+            IComputeManagementClient computeManagementClient,
+            ILogger<ManagedDiskProvisionService> logger)
         {
             this.computeManagementClient = computeManagementClient;
             this.logger = logger;
