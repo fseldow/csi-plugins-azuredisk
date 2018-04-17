@@ -12,7 +12,6 @@ namespace Csi.Plugins.AzureDisk
         {
             serviceProvider = new ServiceCollection()
                .AddLogging(lb => lb.AddSerillogConsole())
-               .AddSingleton<IAzureDiskServiceFactory, AzureDiskServiceFactory>()
                .BuildServiceProvider();
         }
 
