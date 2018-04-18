@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Azure.Management.Compute.Models;
+using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 
 namespace Csi.Plugins.AzureDisk
 {
     interface IManagedDataDiskOperator
     {
-        void AddDisk(IList<DataDisk> disks, AzureResourceId managedDiskId);
-        void RemoveDisk(IList<DataDisk> disks, AzureResourceId managedDiskId);
+        int AddDisk(IList<DataDisk> disks, ResourceId managedDiskId);
+        void RemoveDisk(IList<DataDisk> disks, ResourceId managedDiskId);
     }
 
     sealed class ManagedDataDiskOperator : IManagedDataDiskOperator
     {
-        public void AddDisk(IList<DataDisk> disks, AzureResourceId managedDiskId)
+        public int AddDisk(IList<DataDisk> disks, ResourceId managedDiskId)
         {
             var luns = disks.Select(d => d.Lun).ToArray();
             if (luns.Length >= 64) throw new Exception("No available lun found");
@@ -25,16 +26,18 @@ namespace Csi.Plugins.AzureDisk
                 Lun = lun,
                 ManagedDisk = new ManagedDiskParameters
                 {
-                    Id = managedDiskId.ToString(),
+                    Id = managedDiskId.Id,
                 },
                 CreateOption = "Attach",
             };
             disks.Add(dataDisk);
+
+            return lun;
         }
 
-        public void RemoveDisk(IList<DataDisk> disks, AzureResourceId managedDiskId)
+        public void RemoveDisk(IList<DataDisk> disks, ResourceId managedDiskId)
         {
-            var mid = managedDiskId.ToString();
+            var mid = managedDiskId.Id;
             var found = false;
             var i = 0;
             for (; i < disks.Count; i++)

@@ -1,4 +1,6 @@
 using System;
+using System.Threading.Tasks;
+using Csi.Helpers.Azure;
 using Csi.V0;
 using Csi.V0.Server;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +15,8 @@ namespace Csi.Plugins.AzureDisk
             serviceProvider = new ServiceCollection()
                .AddLogging(lb => lb.AddSerillogConsole())
                .AddSingleton<IManagedDiskProvisionServiceFactory, ManagedDiskProvisionServiceFactory>()
+               .AddSingleton<IManagedDiskSetupServiceFactory, ManagedDiskSetupServiceFactoryStandalone>()
+               .AddInstanceMetadataService()
                .BuildServiceProvider();
         }
 
@@ -23,9 +27,15 @@ namespace Csi.Plugins.AzureDisk
             ActivatorUtilities.CreateInstance<RpcControllerService>(serviceProvider);
 
         public override Node.NodeBase CreateNodeRpcService()
-            => ActivatorUtilities.CreateInstance<RpcNodeService>(serviceProvider, getNodeIdFromEnv());
+            => ActivatorUtilities.CreateInstance<RpcNodeService>(serviceProvider, getNodeIdFromEnv().Result);
 
-        private static string getNodeIdFromEnv() => Environment.GetEnvironmentVariable("NODE_ID")
-            ?? Environment.MachineName;
+        private async Task<string> getNodeIdFromEnv()
+        {
+            var env = Environment.GetEnvironmentVariable("NODE_ID");
+            if (env != null) return env;
+            var rid = await serviceProvider.GetRequiredService<IInstanceMetadataService>().GetResourceId();
+            if (rid != null) return rid.Id;
+            return Environment.MachineName;
+        }
     }
 }

@@ -13,20 +13,17 @@ namespace Csi.Plugins.AzureDisk.Tests
             var service = createService();
 
             var response = await service.ControllerGetCapabilities(new ControllerGetCapabilitiesRequest(), null);
-            Assert.Single(response.Capabilities);
+            Assert.Equal(2,response.Capabilities.Count);
             Assert.Equal(ControllerServiceCapability.Types.RPC.Types.Type.CreateDeleteVolume,
                 response.Capabilities[0].Rpc.Type);
+            Assert.Equal(ControllerServiceCapability.Types.RPC.Types.Type.PublishUnpublishVolume,
+                response.Capabilities[1].Rpc.Type);
         }
 
         [Fact]
         public async Task UnsupportedApiShouldThrowRpcUnimplementedException()
         {
             var service = createService();
-
-            await AssertRpc.ThrowsRpcUnimplementedException(()
-                => service.ControllerPublishVolume(new ControllerPublishVolumeRequest(), null));
-            await AssertRpc.ThrowsRpcUnimplementedException(()
-                => service.ControllerUnpublishVolume(new ControllerUnpublishVolumeRequest(), null));
 
             await AssertRpc.ThrowsRpcUnimplementedException(()
                 => service.ValidateVolumeCapabilities(new ValidateVolumeCapabilitiesRequest(), null));
@@ -44,7 +41,7 @@ namespace Csi.Plugins.AzureDisk.Tests
         private RpcControllerService createService()
         {
             var lf = new LoggerFactory();
-            return new RpcControllerService(null, lf.CreateLogger<RpcControllerService>());
+            return new RpcControllerService(null, null, lf.CreateLogger<RpcControllerService>());
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System;
+using Xunit;
 
 namespace Csi.Plugins.AzureDisk.Tests
 {
@@ -7,6 +8,7 @@ namespace Csi.Plugins.AzureDisk.Tests
         [Fact]
         public void TestGetService()
         {
+            Environment.SetEnvironmentVariable("NODE_ID", "s01");
             var server = new AzureDiskCsiRpcServer();
             Assert.NotNull(server.CreateIdentityRpcService());
             Assert.NotNull(server.CreateControllerRpcService());

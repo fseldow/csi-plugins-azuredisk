@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Management.Compute;
 using Microsoft.Azure.Management.Compute.Models;
 using Util.Extensions.Logging.Step;
+using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 
 namespace Csi.Plugins.AzureDisk
 {
@@ -26,8 +27,9 @@ namespace Csi.Plugins.AzureDisk
             string location,
             int size)
         {
+            var id = AzureResourceInnerHelper.CreateForDisk(subscription, resourceGroup, name);
             // TODO validate subscription
-            using (logger.BeginScope("resourceGroup", resourceGroup))
+            using (logger.BeginResourceIdScope("manageddisk", id))
             using (var s = logger.StepInformation("Create managed disk: {0}", name))
             {
                 var disk = new Disk
@@ -39,14 +41,20 @@ namespace Csi.Plugins.AzureDisk
                 var dr = await computeManagementClient.Disks.CreateOrUpdateAsync(resourceGroup, name, disk);
 
                 s.Commit();
-                return new ManagedDisk { Id = AzureResourceId.CreateForDisk(subscription, resourceGroup, name) };
             }
+
+            return new ManagedDisk { Id = id };
         }
 
-        public Task DeleteAsync(AzureResourceId managedDiskId)
+        public async Task DeleteAsync(ResourceId managedDiskId)
         {
             // TODO validate subscription
-            return computeManagementClient.Disks.DeleteAsync(managedDiskId.ResourceGroup, managedDiskId.Resource);
+            using (logger.BeginResourceIdScope("manageddisk", managedDiskId))
+            using (var s = logger.StepInformation("Delete managed disk"))
+            {
+                await computeManagementClient.Disks.DeleteAsync(managedDiskId.ResourceGroupName, managedDiskId.Name);
+                s.Commit();
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 
 namespace Csi.Plugins.AzureDisk
 {
@@ -11,11 +12,11 @@ namespace Csi.Plugins.AzureDisk
             string name,
             string location,
             int size);
-        Task DeleteAsync(AzureResourceId managedDiskId);
+        Task DeleteAsync(ResourceId managedDiskId);
     }
 
     sealed class ManagedDisk
     {
-        public AzureResourceId Id { get; set; }
+        public ResourceId Id { get; set; }
     }
 }
