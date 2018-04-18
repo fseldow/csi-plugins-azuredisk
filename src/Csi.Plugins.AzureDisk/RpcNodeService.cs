@@ -10,13 +10,16 @@ namespace Csi.Plugins.AzureDisk
     sealed class RpcNodeService : Node.NodeBase
     {
         private readonly string nodeId;
+        private readonly IAzureDiskAttacher azureDiskAttacher;
         private readonly ILogger logger;
 
         public RpcNodeService(
             string nodeId,
+            IAzureDiskAttacher azureDiskAttacher,
             ILogger<RpcNodeService> logger)
         {
             this.nodeId = nodeId;
+            this.azureDiskAttacher = azureDiskAttacher;
             this.logger = logger;
 
             logger.LogInformation("Node rpc service loaded, nodeId:{0}", nodeId);
@@ -32,7 +35,10 @@ namespace Csi.Plugins.AzureDisk
             {
                 try
                 {
-                    await Task.CompletedTask;
+                    if (!request.PublishInfo.TryGetValue("lun", out var lunStr))
+                        throw new Exception("No lun info");
+                    var lun = int.Parse(lunStr);
+                    await azureDiskAttacher.AttachAsync(targetPath, lun);
                 }
                 catch (Exception ex)
                 {
@@ -55,7 +61,7 @@ namespace Csi.Plugins.AzureDisk
             using (var _s = logger.StepInformation("{0}, id: {1}, targetPath: {2}",
                 nameof(NodeUnpublishVolume), id, targetPath))
             {
-                await Task.CompletedTask;
+                await azureDiskAttacher.DetachAsync(targetPath);
                 _s.Commit();
             }
 

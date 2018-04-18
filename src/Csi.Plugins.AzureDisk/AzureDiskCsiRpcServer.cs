@@ -16,6 +16,8 @@ namespace Csi.Plugins.AzureDisk
                .AddLogging(lb => lb.AddSerillogConsole())
                .AddSingleton<IManagedDiskProvisionServiceFactory, ManagedDiskProvisionServiceFactory>()
                .AddSingleton<IManagedDiskSetupServiceFactory, ManagedDiskSetupServiceFactoryStandalone>()
+               .AddSingleton<IAzureDiskAttacher, AzureDiskAttacherLinux>()
+               .AddExternalRunner()
                .AddInstanceMetadataService()
                .BuildServiceProvider();
         }

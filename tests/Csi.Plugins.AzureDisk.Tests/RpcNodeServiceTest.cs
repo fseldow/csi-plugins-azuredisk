@@ -39,6 +39,7 @@ namespace Csi.Plugins.AzureDisk.Tests
             var lf = new LoggerFactory();
             return new RpcNodeService(
                 "name",
+                null,
                 lf.CreateLogger<RpcNodeService>());
         }
     }
