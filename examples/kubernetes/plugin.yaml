@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: csi-plugin-azuredisk
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: csi-plugin-azuredisk-runner
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "update"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["volumeattachments"]
+    verbs: ["get", "list", "watch", "update"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: csi-plugin-azuredisk-role
+subjects:
+  - kind: ServiceAccount
+    name: csi-plugin-azuredisk
+    namespace: csi-plugins-azuredisk
+roleRef:
+  kind: ClusterRole
+  name: csi-plugin-azuredisk-runner
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: csi-plugin-azuredisk
+spec:
+  selector:
+    matchLabels:
+      app: csi-plugin-azuredisk
+  template:
+    metadata:
+      labels:
+        app: csi-plugin-azuredisk
+    spec:
+      serviceAccount: csi-plugin-azuredisk
+      containers:
+        - name: driver-registrar
+          image: quay.io/k8scsi/driver-registrar:v0.2.0
+          args:
+            - "--v=5"
+            - "--csi-address=$(CSI_ENDPOINT)"
+          env:
+            - name: CSI_ENDPOINT
+              value: /var/lib/kubelet/plugins/csi-azuredisk/csi.sock
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /var/lib/kubelet/plugins/csi-azuredisk
+        - name: plugin
+          imagePullPolicy: Always
+          image: karataliu/csi-azuredisk:3
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["SYS_ADMIN"]
+            allowPrivilegeEscalation: true
+          env:
+            - name: CSI_ENDPOINT
+              value: /var/lib/kubelet/plugins/csi-azuredisk/csi.sock
+            - name: CSI_SERVICE_DISABLE_CONTROLLER
+              value: '1'
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /var/lib/kubelet/plugins/csi-azuredisk
+            - name: pods-mount-dir
+              mountPath: /var/lib/kubelet/pods
+              mountPropagation: Bidirectional
+            - name: dev-dir
+              mountPath: /dev
+      volumes:
+        - name: socket-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins/csi-azuredisk
+            # type: DirectoryOrCreate
+        - name: pods-mount-dir
+          hostPath:
+            path: /var/lib/kubelet/pods
+            # type: Directory
+        - name: dev-dir
+          hostPath:
+            path: /dev

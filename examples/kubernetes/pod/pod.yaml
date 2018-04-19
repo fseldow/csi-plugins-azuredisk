@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: claim
+spec:
+  containers:
+  - image: nginx
+    name: test-container
+    volumeMounts:
+    - mountPath: /af
+      name: af-pvc
+  volumes:
+  - name: af-pvc
+    persistentVolumeClaim:
+        claimName: azuredisk-csi-pvc
