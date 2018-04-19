@@ -5,14 +5,14 @@ using Util.Extensions.Logging.Step;
 
 namespace Csi.Plugins.AzureDisk
 {
-    class AzureDiskAttacherLinux : IAzureDiskAttacher
+    class AzureDiskAttacher : IAzureDiskAttacher
     {
-        private readonly IExternalRunner cmdRunner;
+        private readonly IAzureDiskOperator azureDiskOperator;
         private readonly ILogger logger;
 
-        public AzureDiskAttacherLinux(IExternalRunner cmdRunner, ILogger<AzureDiskAttacherLinux> logger)
+        public AzureDiskAttacher(IAzureDiskOperator azureDiskOperator, ILogger<AzureDiskAttacher> logger)
         {
-            this.cmdRunner = cmdRunner;
+            this.azureDiskOperator = azureDiskOperator;
             this.logger = logger;
         }
 
@@ -20,8 +20,10 @@ namespace Csi.Plugins.AzureDisk
         {
             using (var _s = logger.StepDebug(nameof(AttachAsync)))
             {
-                var lunLink = "/dev/disk/azure/scsi1/lun" + lun;
-                await cmdRunner.RunExecutable("readlink", targetPath);
+                var deviceId = await azureDiskOperator.ProbeDevice(lun);
+                await azureDiskOperator.EnsureFormat(deviceId);
+                await azureDiskOperator.Attach(targetPath, deviceId);
+
                 _s.Commit();
             }
         }
@@ -30,7 +32,7 @@ namespace Csi.Plugins.AzureDisk
         {
             using (var _s = logger.StepDebug(nameof(DetachAsync)))
             {
-                await cmdRunner.RunExecutable("umount", targetPath);
+                await azureDiskOperator.Detach(targetPath);
                 _s.Commit();
             }
         }
