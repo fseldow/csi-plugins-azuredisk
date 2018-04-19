@@ -12,6 +12,7 @@ namespace Csi.Plugins.AzureDisk
     {
         public string Subscription { get; set; }
         public string ResourceGroup { get; set; }
+        public string Location { get; set; }
 
         public static ContextConfig FromEnv()
         {
@@ -19,6 +20,7 @@ namespace Csi.Plugins.AzureDisk
             {
                 Subscription = Environment.GetEnvironmentVariable("DEFAULT_SUBSCRIPTION"),
                 ResourceGroup = Environment.GetEnvironmentVariable("DEFAULT_RESOURCEGROUP"),
+                Location = Environment.GetEnvironmentVariable("DEFAULT_LOCATION"),
             };
         }
     }
@@ -57,13 +59,19 @@ namespace Csi.Plugins.AzureDisk
             {
                 try
                 {
-                    IManagedDiskProvisionService provisionService = provisionServiceFactory.Create(provider.Provide(), contextConfig.Subscription);
-                    var md = await provisionService.CreateAsync(contextConfig.Subscription, contextConfig.ResourceGroup,
-                        request.Name, "westus2", 3);
+                    IManagedDiskProvisionService provisionService = provisionServiceFactory.Create(provider.Provide(),
+                        contextConfig.Subscription);
+                    var md = await provisionService.CreateAsync(
+                        contextConfig.Subscription,
+                        contextConfig.ResourceGroup,
+                        request.Name,
+                        contextConfig.Location,
+                        3);
 
                     response.Volume = new Volume
                     {
                         Id = md.Id.Id,
+                        CapacityBytes = 3 << 30,
                     };
                 }
                 catch (Exception ex)
