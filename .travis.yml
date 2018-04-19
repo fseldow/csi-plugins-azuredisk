@@ -1,0 +1,9 @@
+branches:
+  only:
+  - master
+language: csharp
+solution: Csi.Plugins.AzureDisk.sln
+dotnet: 2.1.4
+script:
+  - dotnet build Csi.Plugins.AzureDisk.sln
+  - dotnet test tests/Csi.Plugins.AzureDisk.Tests

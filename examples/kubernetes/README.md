@@ -1,11 +1,11 @@
-# Azure File CSI plugin on Kubernetes
+# Azure Disk CSI plugin on Kubernetes
 
 ## Prerequisite
 An azure stroage account
 
 ## Deploy
 1. Fill in storage account information in secret.env
-2. Deploy Azure File CSI plugin, run following
+2. Deploy Azure disk CSI plugin, run following
 ```
 kubectl create ns csi-plugins-azuredisk
 kubectl --namespace=csi-plugins-azuredisk create secret generic csi-azuredisk-secret --from-env-file=secret.env
