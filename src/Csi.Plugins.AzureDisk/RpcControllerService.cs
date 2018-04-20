@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Csi.Helpers.Azure;
 using Csi.V0;
 using Grpc.Core;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
@@ -15,6 +16,8 @@ namespace Csi.Plugins.AzureDisk
         private readonly IManagedDiskSetupServiceFactory setupServiceFactory;
         private readonly IManagedDiskProvisionServiceFactory provisionServiceFactory;
         private readonly ILogger logger;
+
+        private readonly ByteUnitConverter byteUnitConverter = new ByteUnitConverter();
 
 
         public RpcControllerService(
@@ -47,7 +50,7 @@ namespace Csi.Plugins.AzureDisk
             {
                 try
                 {
-                    var ctx = new Helpers.Azure.DataProviderContext<ManagedDiskConfig>();
+                    var ctx = new DataProviderContext<ManagedDiskConfig>();
                     await contextConfig.Provide(ctx);
 
                     var actx = new AzureAuthConfigProviderContext { Secrets = request.ControllerCreateSecrets };
@@ -55,17 +58,23 @@ namespace Csi.Plugins.AzureDisk
                     var provisionService = provisionServiceFactory.Create(
                         provider.Provide(actx),
                         ctx.Result.SubscriptionId);
+
+                    var sizeGiB = byteUnitConverter.ToGibibyte(
+                        request.CapacityRange == null
+                        ? 1
+                        : request.CapacityRange.RequiredBytes);
+
                     var md = await provisionService.CreateAsync(
                         ctx.Result.SubscriptionId,
                         ctx.Result.ResourceGroupName,
                         request.Name,
                         ctx.Result.Location,
-                        3);
+                        sizeGiB);
 
                     response.Volume = new Volume
                     {
                         Id = md.Id.Id,
-                        CapacityBytes = 3 << 30,
+                        CapacityBytes = byteUnitConverter.FromGigibyte(md.Size),
                     };
                 }
                 catch (Exception ex)

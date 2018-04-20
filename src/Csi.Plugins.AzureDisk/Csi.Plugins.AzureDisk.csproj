@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Csi" Version="0.2.0-beta0" />
-    <PackageReference Include="Csi.Helpers.Azure" Version="1.0.0-alpha3" />
+    <PackageReference Include="Csi.Helpers.Azure" Version="1.0.0-alpha4" />
     <PackageReference Include="Microsoft.Azure.Management.Compute" Version="18.0.0" />
     <PackageReference Include="Microsoft.Azure.Management.ResourceManager.Fluent" Version="1.9.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />

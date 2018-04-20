@@ -18,5 +18,6 @@ namespace Csi.Plugins.AzureDisk
     sealed class ManagedDisk
     {
         public ResourceId Id { get; set; }
+        public int Size { get; set; }
     }
 }

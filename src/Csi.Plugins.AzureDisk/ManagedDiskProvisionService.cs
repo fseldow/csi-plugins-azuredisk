@@ -28,6 +28,11 @@ namespace Csi.Plugins.AzureDisk
             int size)
         {
             var id = AzureResourceInnerHelper.CreateForDisk(subscription, resourceGroup, name);
+            var result = new ManagedDisk
+            {
+                Id = id,
+            };
+
             // TODO validate subscription
             using (logger.BeginResourceIdScope("manageddisk", id))
             using (var s = logger.StepInformation("Create managed disk: {0}", name))
@@ -39,11 +44,12 @@ namespace Csi.Plugins.AzureDisk
                     CreationData = new CreationData("Empty"),
                 };
                 var dr = await computeManagementClient.Disks.CreateOrUpdateAsync(resourceGroup, name, disk);
-
+                // TODO verify null size
+                result.Size = dr.DiskSizeGB != null ? dr.DiskSizeGB.Value : 1;
                 s.Commit();
             }
 
-            return new ManagedDisk { Id = id };
+            return result;
         }
 
         public async Task DeleteAsync(ResourceId managedDiskId)
