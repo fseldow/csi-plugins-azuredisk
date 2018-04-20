@@ -20,7 +20,12 @@ namespace Csi.Plugins.AzureDisk
                .AddSingleton<IAzureDiskOperator, AzureDiskOperatorLinux>()
                .AddSingleton<IServiceClientCredentialsProvider, SpServiceClientCredentialsProvider>()
                .AddSingleton<IAzureSpProvider, AzureSpProvider>()
-               .AddSingleton<IManagedDiskConfigProvider, ManagedDiskConfigProviderEnv>()
+               .AddSingleton<IManagedDiskConfigProvider>(sp => {
+                   var env = ActivatorUtilities.CreateInstance<ManagedDiskConfigProviderEnv>(sp);
+                   var im = ActivatorUtilities.CreateInstance<ManageDiskConfigProviderInstanceMetadata>(sp);
+                   im.Inner = env;
+                   return im;
+               })
                .AddExternalRunner()
                .AddInstanceMetadataService()
                .BuildServiceProvider();

@@ -35,14 +35,44 @@ namespace Csi.Plugins.AzureDisk
     }
 
     interface IManagedDiskConfigProvider : IDataProvider<ManagedDiskConfig, DataProviderContext<ManagedDiskConfig>>
-    { 
+    {
+    }
+
+    class ManageDiskConfigProviderInstanceMetadata
+        : ChainDataProvider<ManagedDiskConfig, DataProviderContext<ManagedDiskConfig>>,
+        IManagedDiskConfigProvider
+    {
+        private readonly IInstanceMetadataService instanceMetadataService;
+
+        public ManageDiskConfigProviderInstanceMetadata(IInstanceMetadataService instanceMetadataService)
+        {
+            this.instanceMetadataService = instanceMetadataService;
+        }
+
+        public override async Task Provide(DataProviderContext<ManagedDiskConfig> context)
+        {
+            var im = await instanceMetadataService.GetInstanceMetadataAsync();
+            if (im != null)
+            {
+                context.Result = new ManagedDiskConfig
+                {
+                    SubscriptionId = im.Compute.SubscriptionId,
+                    ResourceGroupName = im.Compute.ResourceGroupName,
+                    Location = im.Compute.Location,
+                };
+                return;
+            }
+
+            if (Inner != null) await Inner.Provide(context);
+        }
     }
 
     class ManagedDiskConfigProviderEnv : IManagedDiskConfigProvider
     {
         public Task Provide(DataProviderContext<ManagedDiskConfig> context)
         {
-            context.Result = new ManagedDiskConfig {
+            context.Result = new ManagedDiskConfig
+            {
                 SubscriptionId = Environment.GetEnvironmentVariable("DEFAULT_SUBSCRIPTION"),
                 ResourceGroupName = Environment.GetEnvironmentVariable("DEFAULT_RESOURCEGROUP"),
                 Location = Environment.GetEnvironmentVariable("DEFAULT_LOCATION"),
