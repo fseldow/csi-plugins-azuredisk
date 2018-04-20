@@ -50,8 +50,10 @@ namespace Csi.Plugins.AzureDisk
                     var ctx = new Helpers.Azure.DataProviderContext<ManagedDiskConfig>();
                     await contextConfig.Provide(ctx);
 
+                    var actx = new AzureAuthConfigProviderContext { Secrets = request.ControllerCreateSecrets };
+
                     var provisionService = provisionServiceFactory.Create(
-                        provider.Provide(),
+                        provider.Provide(actx),
                         ctx.Result.SubscriptionId);
                     var md = await provisionService.CreateAsync(
                         ctx.Result.SubscriptionId,
@@ -91,7 +93,9 @@ namespace Csi.Plugins.AzureDisk
                 {
                     var ctx = new Helpers.Azure.DataProviderContext<ManagedDiskConfig>();
                     await contextConfig.Provide(ctx);
-                    var provisionService = provisionServiceFactory.Create(provider.Provide(), ctx.Result.SubscriptionId);
+                    var actx = new AzureAuthConfigProviderContext { Secrets = request.ControllerDeleteSecrets };
+
+                    var provisionService = provisionServiceFactory.Create(provider.Provide(actx), ctx.Result.SubscriptionId);
                     await provisionService.DeleteAsync(AzureResourceInnerHelper.CreateForDisk(
                         ctx.Result.SubscriptionId, ctx.Result.ResourceGroupName, id));
                 }
@@ -121,7 +125,10 @@ namespace Csi.Plugins.AzureDisk
                 {
                     var ctx = new Helpers.Azure.DataProviderContext<ManagedDiskConfig>();
                     await contextConfig.Provide(ctx);
-                    var setupService = setupServiceFactory.Create(provider.Provide(), ctx.Result.SubscriptionId);
+
+                    var actx = new AzureAuthConfigProviderContext { Secrets = request.ControllerPublishSecrets };
+
+                    var setupService = setupServiceFactory.Create(provider.Provide(actx), ctx.Result.SubscriptionId);
                     var vmRid = ResourceId.FromString(request.NodeId);
                     var diskId = ResourceId.FromString(id);
 
@@ -151,7 +158,10 @@ namespace Csi.Plugins.AzureDisk
                 {
                     var ctx = new Helpers.Azure.DataProviderContext<ManagedDiskConfig>();
                     await contextConfig.Provide(ctx);
-                    var setupService = setupServiceFactory.Create(provider.Provide(), ctx.Result.SubscriptionId);
+
+                    var actx = new AzureAuthConfigProviderContext { Secrets = request.ControllerUnpublishSecrets };
+
+                    var setupService = setupServiceFactory.Create(provider.Provide(actx), ctx.Result.SubscriptionId);
                     var vmRid = ResourceId.FromString(request.NodeId);
                     var diskId = ResourceId.FromString(id);
 

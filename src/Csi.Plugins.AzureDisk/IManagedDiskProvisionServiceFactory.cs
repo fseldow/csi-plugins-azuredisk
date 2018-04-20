@@ -35,7 +35,7 @@ namespace Csi.Plugins.AzureDisk
 
     interface IServiceClientCredentialsProvider
     {
-        ServiceClientCredentials Provide();
+        ServiceClientCredentials Provide(AzureAuthConfigProviderContext ctx);
     }
 
     class SpServiceClientCredentialsProvider : IServiceClientCredentialsProvider
@@ -47,9 +47,8 @@ namespace Csi.Plugins.AzureDisk
             this.azureSpProvider = azureSpProvider;
         }
 
-        public ServiceClientCredentials Provide()
+        public ServiceClientCredentials Provide(AzureAuthConfigProviderContext ctx)
         {
-            var ctx = new Helpers.Azure.DataProviderContext<AzureAuthConfig> { };
             azureSpProvider.Provide(ctx);
             return SdkContext.AzureCredentialsFactory.FromServicePrincipal(
                 ctx.Result.ClientId,

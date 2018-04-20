@@ -19,12 +19,19 @@ namespace Csi.Plugins.AzureDisk
                .AddSingleton<IAzureDiskAttacher, AzureDiskAttacher>()
                .AddSingleton<IAzureDiskOperator, AzureDiskOperatorLinux>()
                .AddSingleton<IServiceClientCredentialsProvider, SpServiceClientCredentialsProvider>()
-               .AddSingleton<IAzureSpProvider, AzureSpProvider>()
-               .AddSingleton<IManagedDiskConfigProvider>(sp => {
-                   var env = ActivatorUtilities.CreateInstance<ManagedDiskConfigProviderEnv>(sp);
+               .AddSingleton<IAzureSpProvider>(sp =>
+               {
+                   var env = ActivatorUtilities.CreateInstance<AzureSpProvider>(sp);
+                   var sec = ActivatorUtilities.CreateInstance<AzureSpProviderFromSec>(sp);
+                   sec.Inner = env;
+                   return sec;
+               })
+               .AddSingleton<IManagedDiskConfigProvider>(sp =>
+               {
                    var im = ActivatorUtilities.CreateInstance<ManageDiskConfigProviderInstanceMetadata>(sp);
-                   im.Inner = env;
-                   return im;
+                   var env = ActivatorUtilities.CreateInstance<ManagedDiskConfigProviderEnv>(sp);
+                   env.Inner = im;
+                   return env;
                })
                .AddExternalRunner()
                .AddInstanceMetadataService()
@@ -44,7 +51,7 @@ namespace Csi.Plugins.AzureDisk
         {
             var env = Environment.GetEnvironmentVariable("NODE_ID");
             if (env != null) return env;
-            var mes= await serviceProvider.GetRequiredService<IInstanceMetadataService>().GetInstanceMetadataAsync();
+            var mes = await serviceProvider.GetRequiredService<IInstanceMetadataService>().GetInstanceMetadataAsync();
             if (mes != null) return mes.GetResourceId().Id;
             return Environment.MachineName;
         }
