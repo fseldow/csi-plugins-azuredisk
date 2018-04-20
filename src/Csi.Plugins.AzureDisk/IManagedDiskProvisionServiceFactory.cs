@@ -38,17 +38,23 @@ namespace Csi.Plugins.AzureDisk
         ServiceClientCredentials Provide();
     }
 
-    class ServiceClientCredentialsProvider : IServiceClientCredentialsProvider
+    class SpServiceClientCredentialsProvider : IServiceClientCredentialsProvider
     {
+        private readonly IAzureSpProvider azureSpProvider;
+
+        public SpServiceClientCredentialsProvider(IAzureSpProvider azureSpProvider)
+        {
+            this.azureSpProvider = azureSpProvider;
+        }
+
         public ServiceClientCredentials Provide()
         {
-            var clientId = Environment.GetEnvironmentVariable("DEFAULT_CLIENT_ID");
-            var clientSecret = Environment.GetEnvironmentVariable("DEFAULT_CLIENT_SECRET");
-            var tenantId = Environment.GetEnvironmentVariable("DEFAULT_TENANT_ID");
+            var ctx = new Helpers.Azure.DataProviderContext<AzureAuthConfig> { };
+            azureSpProvider.Provide(ctx);
             return SdkContext.AzureCredentialsFactory.FromServicePrincipal(
-                clientId,
-                clientSecret,
-                tenantId,
+                ctx.Result.ClientId,
+                ctx.Result.ClientSecret,
+                ctx.Result.TenantId,
                 AzureEnvironment.AzureGlobalCloud);
         }
     }

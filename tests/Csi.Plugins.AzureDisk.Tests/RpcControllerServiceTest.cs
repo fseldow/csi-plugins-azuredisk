@@ -13,7 +13,7 @@ namespace Csi.Plugins.AzureDisk.Tests
             var service = createService();
 
             var response = await service.ControllerGetCapabilities(new ControllerGetCapabilitiesRequest(), null);
-            Assert.Equal(2,response.Capabilities.Count);
+            Assert.Equal(2, response.Capabilities.Count);
             Assert.Equal(ControllerServiceCapability.Types.RPC.Types.Type.CreateDeleteVolume,
                 response.Capabilities[0].Rpc.Type);
             Assert.Equal(ControllerServiceCapability.Types.RPC.Types.Type.PublishUnpublishVolume,
@@ -41,7 +41,7 @@ namespace Csi.Plugins.AzureDisk.Tests
         private RpcControllerService createService()
         {
             var lf = new LoggerFactory();
-            return new RpcControllerService(null, null, lf.CreateLogger<RpcControllerService>());
+            return new RpcControllerService(null, null, null, null, lf.CreateLogger<RpcControllerService>());
         }
     }
 }

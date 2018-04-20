@@ -8,36 +8,24 @@ using Util.Extensions.Logging.Step;
 
 namespace Csi.Plugins.AzureDisk
 {
-    class ContextConfig
-    {
-        public string Subscription { get; set; }
-        public string ResourceGroup { get; set; }
-        public string Location { get; set; }
-
-        public static ContextConfig FromEnv()
-        {
-            return new ContextConfig
-            {
-                Subscription = Environment.GetEnvironmentVariable("DEFAULT_SUBSCRIPTION"),
-                ResourceGroup = Environment.GetEnvironmentVariable("DEFAULT_RESOURCEGROUP"),
-                Location = Environment.GetEnvironmentVariable("DEFAULT_LOCATION"),
-            };
-        }
-    }
-
     sealed class RpcControllerService : Controller.ControllerBase
     {
-        private readonly IServiceClientCredentialsProvider provider = new ServiceClientCredentialsProvider();
+        private readonly IServiceClientCredentialsProvider provider;
+        private readonly IManagedDiskConfigProvider contextConfig;
         private readonly IManagedDiskSetupServiceFactory setupServiceFactory;
         private readonly IManagedDiskProvisionServiceFactory provisionServiceFactory;
         private readonly ILogger logger;
-        private ContextConfig contextConfig = ContextConfig.FromEnv();
+
 
         public RpcControllerService(
+            IServiceClientCredentialsProvider provider,
+            IManagedDiskConfigProvider contextConfig,
             IManagedDiskSetupServiceFactory setupServiceFactory,
             IManagedDiskProvisionServiceFactory provisionServiceFactory,
             ILogger<RpcControllerService> logger)
         {
+            this.provider = provider;
+            this.contextConfig = contextConfig;
             this.setupServiceFactory = setupServiceFactory;
             this.provisionServiceFactory = provisionServiceFactory;
             this.logger = logger;
@@ -59,13 +47,17 @@ namespace Csi.Plugins.AzureDisk
             {
                 try
                 {
-                    IManagedDiskProvisionService provisionService = provisionServiceFactory.Create(provider.Provide(),
-                        contextConfig.Subscription);
+                    var ctx = new Helpers.Azure.DataProviderContext<ManagedDiskConfig>();
+                    await contextConfig.Provide(ctx);
+
+                    var provisionService = provisionServiceFactory.Create(
+                        provider.Provide(),
+                        ctx.Result.SubscriptionId);
                     var md = await provisionService.CreateAsync(
-                        contextConfig.Subscription,
-                        contextConfig.ResourceGroup,
+                        ctx.Result.SubscriptionId,
+                        ctx.Result.ResourceGroupName,
                         request.Name,
-                        contextConfig.Location,
+                        ctx.Result.Location,
                         3);
 
                     response.Volume = new Volume
@@ -97,8 +89,11 @@ namespace Csi.Plugins.AzureDisk
             {
                 try
                 {
-                    IManagedDiskProvisionService provisionService = provisionServiceFactory.Create(provider.Provide(), contextConfig.Subscription);
-                    await provisionService.DeleteAsync(AzureResourceInnerHelper.CreateForDisk(contextConfig.Subscription, contextConfig.ResourceGroup, id));
+                    var ctx = new Helpers.Azure.DataProviderContext<ManagedDiskConfig>();
+                    await contextConfig.Provide(ctx);
+                    var provisionService = provisionServiceFactory.Create(provider.Provide(), ctx.Result.SubscriptionId);
+                    await provisionService.DeleteAsync(AzureResourceInnerHelper.CreateForDisk(
+                        ctx.Result.SubscriptionId, ctx.Result.ResourceGroupName, id));
                 }
                 catch (Exception ex)
                 {
@@ -124,7 +119,9 @@ namespace Csi.Plugins.AzureDisk
             {
                 try
                 {
-                    var setupService = setupServiceFactory.Create(provider.Provide(), contextConfig.Subscription);
+                    var ctx = new Helpers.Azure.DataProviderContext<ManagedDiskConfig>();
+                    await contextConfig.Provide(ctx);
+                    var setupService = setupServiceFactory.Create(provider.Provide(), ctx.Result.SubscriptionId);
                     var vmRid = ResourceId.FromString(request.NodeId);
                     var diskId = ResourceId.FromString(id);
 
@@ -152,7 +149,9 @@ namespace Csi.Plugins.AzureDisk
             {
                 try
                 {
-                    var setupService = setupServiceFactory.Create(provider.Provide(), contextConfig.Subscription);
+                    var ctx = new Helpers.Azure.DataProviderContext<ManagedDiskConfig>();
+                    await contextConfig.Provide(ctx);
+                    var setupService = setupServiceFactory.Create(provider.Provide(), ctx.Result.SubscriptionId);
                     var vmRid = ResourceId.FromString(request.NodeId);
                     var diskId = ResourceId.FromString(id);
 

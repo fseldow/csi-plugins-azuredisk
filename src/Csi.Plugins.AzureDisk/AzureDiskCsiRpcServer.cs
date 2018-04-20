@@ -18,6 +18,9 @@ namespace Csi.Plugins.AzureDisk
                .AddSingleton<IManagedDiskSetupServiceFactory, ManagedDiskSetupServiceFactoryStandalone>()
                .AddSingleton<IAzureDiskAttacher, AzureDiskAttacher>()
                .AddSingleton<IAzureDiskOperator, AzureDiskOperatorLinux>()
+               .AddSingleton<IServiceClientCredentialsProvider, SpServiceClientCredentialsProvider>()
+               .AddSingleton<IAzureSpProvider, AzureSpProvider>()
+               .AddSingleton<IManagedDiskConfigProvider, ManagedDiskConfigProviderEnv>()
                .AddExternalRunner()
                .AddInstanceMetadataService()
                .BuildServiceProvider();
