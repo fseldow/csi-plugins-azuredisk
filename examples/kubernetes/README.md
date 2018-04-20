@@ -4,7 +4,7 @@
 An azure stroage account
 
 ## Deploy
-1. Fill in storage account information in secret.env
+1. Fill in storage account information in secret.env, and environment variables in attacher.yaml
 2. Deploy Azure disk CSI plugin, run following
 ```
 kubectl create ns csi-plugins-azuredisk

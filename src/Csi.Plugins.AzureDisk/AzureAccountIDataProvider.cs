@@ -5,6 +5,7 @@ using Csi.Helpers.Azure;
 
 namespace Csi.Plugins.AzureDisk
 {
+    // TODO unified approaches for supporting multiple providers
     class AzureAuthConfig
     {
         public string TenantId { get; set; }
