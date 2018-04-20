@@ -39,8 +39,8 @@ namespace Csi.Plugins.AzureDisk
         {
             var env = Environment.GetEnvironmentVariable("NODE_ID");
             if (env != null) return env;
-            var rid = await serviceProvider.GetRequiredService<IInstanceMetadataService>().GetResourceId();
-            if (rid != null) return rid.Id;
+            var mes= await serviceProvider.GetRequiredService<IInstanceMetadataService>().GetInstanceMetadataAsync();
+            if (mes != null) return mes.GetResourceId().Id;
             return Environment.MachineName;
         }
     }
