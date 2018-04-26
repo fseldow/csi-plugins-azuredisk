@@ -7,3 +7,5 @@ reclaimPolicy: Delete
 parameters:
   csiProvisionerSecretName: csi-azuredisk-secret
   csiProvisionerSecretNamespace: csi-plugins-azuredisk
+  csiControllerPublishSecretName: csi-azuredisk-secret
+  csiControllerPublishSecretNamespace:  csi-plugins-azuredisk

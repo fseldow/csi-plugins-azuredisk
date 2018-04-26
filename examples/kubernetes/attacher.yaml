@@ -68,18 +68,6 @@ spec:
               value: /var/lib/kubelet/plugins/csi-azuredisk/csi.sock
             - name: CSI_SERVICE_DISABLE_NODE
               value: '1'
-            - name: DEFAULT_TENANT_ID
-              value: ''
-            - name: DEFAULT_SUBSCRIPTION
-              value: ''
-            - name: DEFAULT_RESOURCEGROUP
-              value: ''
-            - name: DEFAULT_CLIENT_ID
-              value: ''
-            - name: DEFAULT_CLIENT_SECRET
-              value: ''
-            - name: DEFAULT_LOCATION
-              value: ''
           volumeMounts:
             - name: socket-dir
               mountPath: /var/lib/kubelet/plugins/csi-azuredisk
