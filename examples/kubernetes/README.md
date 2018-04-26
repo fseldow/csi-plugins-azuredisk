@@ -1,17 +1,18 @@
 # Azure Disk CSI plugin on Kubernetes
 
 ## Prerequisite
-An azure stroage account
+- A Kubernetes cluster running on azure
+- An Azure service principal that has permission on the Kubernetes cluster's resource group
 
 ## Deploy
-1. Fill in storage account information in secret.env, and environment variables in attacher.yaml
-2. Deploy Azure disk CSI plugin, run following
+1. Fill in service principal information in secret.env
+2. To deploy Azure disk CSI plugin, run following
 ```
 kubectl create ns csi-plugins-azuredisk
 kubectl --namespace=csi-plugins-azuredisk create secret generic csi-azuredisk-secret --from-env-file=secret.env
 kubectl --namespace=csi-plugins-azuredisk create -f .
 ```
-3. Deploy demo pod, run following
+3. To deploy demo pod, run following
 ```
 kubectl create ns demo
 kubectl --namespace=demo create -f pod
