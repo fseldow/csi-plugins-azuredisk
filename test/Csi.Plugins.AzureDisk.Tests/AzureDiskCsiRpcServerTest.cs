@@ -9,7 +9,7 @@ namespace Csi.Plugins.AzureDisk.Tests
         public void TestGetService()
         {
             Environment.SetEnvironmentVariable("NODE_ID", "s01");
-            var server = new AzureDiskCsiRpcServer();
+            var server = new AzureDiskCsiRpcServiceFactory();
             Assert.NotNull(server.CreateIdentityRpcService());
             Assert.NotNull(server.CreateControllerRpcService());
             Assert.NotNull(server.CreateNodeRpcService());

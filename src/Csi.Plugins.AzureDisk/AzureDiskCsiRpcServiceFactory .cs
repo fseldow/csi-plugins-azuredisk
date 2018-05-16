@@ -7,10 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Csi.Plugins.AzureDisk
 {
-    sealed class AzureDiskCsiRpcServer : CsiRpcServer
+    sealed class AzureDiskCsiRpcServiceFactory : ICsiRpcServiceFactory
     {
         private readonly IServiceProvider serviceProvider;
-        public AzureDiskCsiRpcServer()
+        public AzureDiskCsiRpcServiceFactory()
         {
             serviceProvider = new ServiceCollection()
                .AddLogging(lb => lb.AddSerillogConsole())
@@ -38,13 +38,13 @@ namespace Csi.Plugins.AzureDisk
                .BuildServiceProvider();
         }
 
-        public override Identity.IdentityBase CreateIdentityRpcService() =>
+        public Identity.IdentityBase CreateIdentityRpcService() =>
             new IdentityRpcService(Constants.Name, Constants.Version);
 
-        public override Controller.ControllerBase CreateControllerRpcService() =>
+        public Controller.ControllerBase CreateControllerRpcService() =>
             ActivatorUtilities.CreateInstance<RpcControllerService>(serviceProvider);
 
-        public override Node.NodeBase CreateNodeRpcService()
+        public Node.NodeBase CreateNodeRpcService()
             => ActivatorUtilities.CreateInstance<RpcNodeService>(serviceProvider, getNodeIdFromEnv().Result);
 
         private async Task<string> getNodeIdFromEnv()
