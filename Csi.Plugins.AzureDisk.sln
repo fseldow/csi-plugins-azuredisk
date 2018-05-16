@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Csi.Plugins.AzureDisk", "src\Csi.Plugins.AzureDisk\Csi.Plugins.AzureDisk.csproj", "{E1227804-B5DB-4705-AF1D-AB396FAF4A38}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Csi.Plugins.AzureDisk.Tests", "tests\Csi.Plugins.AzureDisk.Tests\Csi.Plugins.AzureDisk.Tests.csproj", "{DE0325EF-53E8-4329-925F-9D5D3D92C3E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Csi.Plugins.AzureDisk.Tests", "test\Csi.Plugins.AzureDisk.Tests\Csi.Plugins.AzureDisk.Tests.csproj", "{DE0325EF-53E8-4329-925F-9D5D3D92C3E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
